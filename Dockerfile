@@ -5,11 +5,11 @@ ENV PYTHONUNBUFFERED 1
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y \
+        less vim \
         git \
         libpq-dev \
         postgresql-client \
         libdb-dev \
-        fp-compiler fp-units-base fp-units-math \
         texlive-latex-base \
         texlive-lang-polish \
         texlive-latex-extra \
@@ -19,10 +19,10 @@ RUN dpkg --add-architecture i386 && \
         texlive-pstricks \
         ghostscript \
         texlive-fonts-recommended \
-        gcc-multilib \
+        gcc \
         sudo \
-        libstdc++6:i386 \
-        zlib1g:i386 \
+        libstdc++6 \
+        zlib1g \
         locales \
         python3-pip && \
     apt-get clean
@@ -57,6 +57,15 @@ RUN pip3 install --user psycopg2-binary==2.8.6 twisted uwsgi
 WORKDIR /sio2/oioioi
 
 COPY --chown=oioioi:oioioi setup.py requirements.txt ./
+ENV BERKELEYDB_DIR /usr
+ENV BERKELEYDB_LIBDIR /usr/lib/aarch64-linux-gnu
+ENV BERKELEYDB_INCDIR /usr/include
+RUN sudo apt-get -y install libdb-dev
+RUN ls -al /usr/include/db* && ( find /usr | grep libdb ) &&pip3 install bsddb3
+
+RUN pip3 install --user psycopg2-binary==2.8.6 twisted uwsgi
+RUN pip3 install --user selenium
+
 RUN pip3 install -r requirements.txt --user
 COPY --chown=oioioi:oioioi requirements_static.txt ./
 RUN pip3 install -r requirements_static.txt --user
